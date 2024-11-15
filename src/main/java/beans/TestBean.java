@@ -5,7 +5,6 @@ import javax.faces.bean.*;
 @ManagedBean(name = "testBean", eager = true)
 @ApplicationScoped
 public class TestBean {
-    @ManagedProperty(value = "#{message}")
     private String message;
     public TestBean() {
         message = "Lolka";
