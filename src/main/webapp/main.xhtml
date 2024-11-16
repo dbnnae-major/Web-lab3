@@ -31,17 +31,6 @@
         header p {
             margin: 0;
         }
-
-        #clock {
-            position: absolute;
-            top: 120px;
-            right: 20px;
-            padding: 10px;
-            background: rgba(0, 0, 0, 0.82);
-            color: #ffffff;
-            font-size: 20px;
-            border-radius: 5px;
-        }
     </style>
 </h:head>
 <h:body>
@@ -50,18 +39,5 @@
         <p>Номер варианта: 374</p>
         <p>Номер группы: Р3215</p>
     </header>
-    <div id="clock"></div>
-    <h:form>
-        <h:commandButton value="Перейти на другую страницу" action="goToNextPage" />
-    </h:form>
-    <script>
-        window.onload = function(){
-            window.setInterval(function(){
-                var now = new Date();
-                var clock = document.getElementById("clock");
-                clock.innerHTML = now.toLocaleTimeString();
-            }, 1000);
-        };
-    </script>
 </h:body>
 </html>
