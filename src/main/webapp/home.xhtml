@@ -8,7 +8,7 @@
         body {
             margin: 0;
             font-family: monospace;
-            background-image: url('icons/back1.gif');
+            background-image: url('icons/back1_right.gif');
             background-color: #000;
             color: #ffffff;
             font-size: 40px;
@@ -42,6 +42,37 @@
             font-size: 20px;
             border-radius: 5px;
         }
+
+        .styled-button {
+            background-color: rgba(0, 0, 0, 0.6);
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: background-color 0.3s ease, opacity 0.3s ease;
+        }
+
+        .styled-button:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+            opacity: 0.9;
+        }
+
+        .styled-button:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        body:hover {
+            background-image: url('icons/back2.gif');
+            background-size: cover;
+            background-position: center;
+            transition: background-image 0.5s ease;
+        }
     </style>
 </h:head>
 <h:body>
@@ -52,7 +83,7 @@
     </header>
     <div id="clock"></div>
     <h:form>
-        <h:commandButton value="Перейти на другую страницу" action="goToNextPage" />
+        <h:commandButton value="Перейти на следующую страницу" action="goToNextPage" styleClass="styled-button" />
     </h:form>
     <script>
         window.onload = function(){
