@@ -16,6 +16,7 @@
             background-position: center;
             background-repeat: no-repeat;
             height: 100vh;
+            transition: background-image 0.5s ease;
         }
 
         header {
@@ -63,15 +64,10 @@
             opacity: 0.9;
         }
 
-        .styled-button:hover {
-            background-color: rgba(0, 0, 0, 0.8);
-        }
-
         body:hover {
             background-image: url('icons/back2.gif');
             background-size: cover;
             background-position: center;
-            transition: background-image 0.5s ease;
         }
     </style>
 </h:head>
@@ -93,6 +89,16 @@
                 clock.innerHTML = now.toLocaleTimeString();
             }, 1000);
         };
+
+        document.body.addEventListener('mouseenter', function() {
+            document.body.style.transition = 'background-image 0.5s ease';
+            document.body.style.backgroundImage = 'url("icons/back2.gif")';
+        });
+
+        document.body.addEventListener('mouseleave', function() {
+            document.body.style.transition = 'background-image 0.5s ease';
+            document.body.style.backgroundImage = 'url("icons/back1_right.gif")';
+        });
     </script>
 </h:body>
 </html>

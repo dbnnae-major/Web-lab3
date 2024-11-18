@@ -1,9 +1,12 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="http://xmlns.jcp.org/jsf/html">
-<h:head>
-    <title>Test</title>
-    <meta charset="UTF-8" />
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Лабораторная работа 3</title>
+    <link rel="icon" type="image/jpg" href="resources/icons/ИконкаСайта.jpg"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jsxgraph/1.4.1/jsxgraph.css"/>
     <style>
         body {
             margin: 0;
@@ -18,26 +21,175 @@
             height: 100vh;
         }
 
-        header {
+        .content {
             display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100px;
-            background: rgba(0, 0, 0, 0.82);
-            gap: 20px;
+            justify-content: space-around;
+            align-items: flex-start;
+            margin: 20px;
+        }
+
+        .coordinates_table, .graphic {
+            background-color: rgba(0, 0, 0, 0.82);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            color: #ffffff;
+        }
+
+        .coordinates_table {
+            width: 20%;
+            font-size: 30px;
             padding: 10px;
         }
 
-        header p {
-            margin: 0;
+        .graphic {
+            width: 40%;
+            height: 630px;
+            font-size: 30px;
+            position: relative;
         }
     </style>
-</h:head>
-<h:body>
-    <header>
-        <p>Дубинин Артём Сергеевич</p>
-        <p>Номер варианта: 374</p>
-        <p>Номер группы: Р3215</p>
-    </header>
-</h:body>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsxgraph/1.4.1/jsxgraphcore.js"></script>
+    <script>
+        let radio = 1;
+        let board;
+        let graph1, graph2, graph3, i1, i2, i3;
+        let pointsByR = {};
+
+        function redrawGraphWithNewR(value){
+            radio = value;
+            redrawGraphs();
+        }
+
+        function redrawGraphs() {
+            if (!board) return;
+
+            if (graph1) board.removeObject(graph1);
+            if (graph2) board.removeObject(graph2);
+            if (graph3) board.removeObject(graph3);
+            if (i1) board.removeObject(i1);
+            if (i2) board.removeObject(i2);
+            if (i3) board.removeObject(i3);
+
+            graph1 = board.create('functiongraph', [function (x) {
+                return -x / 2 + (radio / 2);
+            }, 0, radio]);
+
+            i1 = board.create('integral', [[0, radio], graph1], {
+                label: { visible: false },
+                curveLeft: { visible: false },
+                curveRight: { visible: false },
+                baseRight: { visible: false },
+                baseLeft: { visible: false },
+                fillColor: 'white',
+            });
+
+            graph2 = board.create('functiongraph', [function (x) {
+                return radio / 2;
+            }, -radio, 0]);
+
+            i2 = board.create('integral', [[-radio, 0], graph2], {
+                label: { visible: false },
+                curveLeft: { visible: false },
+                curveRight: { visible: false },
+                baseRight: { visible: false },
+                baseLeft: { visible: false },
+                fillColor: 'white',
+            });
+
+            graph3 = board.create('functiongraph', [function (x) {
+                return -Math.sqrt(radio * radio / 4 - x * x);
+            }, -radio / 2, 0]);
+
+            i3 = board.create('integral', [[-radio / 2, 0], graph3], {
+                label: { visible: false },
+                curveLeft: { visible: false },
+                curveRight: { visible: false },
+                baseRight: { visible: false },
+                baseLeft: { visible: false },
+                fillColor: 'white',
+            });
+
+            for (let r in pointsByR) {
+                pointsByR[r].forEach(point => point.setAttribute({ visible: false }));
+            }
+
+            if (pointsByR[radio]) {
+                pointsByR[radio].forEach(point => point.setAttribute({ visible: true }));
+            }
+        }
+
+        $(document).ready(function () {
+            board = JXG.JSXGraph.initBoard("jxgbox", {
+                boundingbox: [-6, 6, 6, -6],
+                axis: true,
+                defaultAxes: {
+                    x: { ticks: { color: 'red', drawZero: true, label: { color: 'red' } } },
+                    y: { ticks: { color: 'red', label: { color: 'red' } } }
+                }
+            });
+
+            function addPoint(x, y, r, color) {
+                let point = board.create('point', [x, y], { name: '', size: 2, color: color });
+                if (!pointsByR[r]) pointsByR[r] = [];
+                pointsByR[r].push(point);
+            }
+
+            redrawGraphs();
+
+            var getMouseCoords = function (e, i) {
+                    var pos = board.getMousePosition(e, i);
+                    return new JXG.Coords(JXG.COORDS_BY_SCREEN, pos, board);
+                },
+
+                handleDown = function (e) {
+                    var coords = getMouseCoords(e, 0);
+
+                    let point = board.create('point', [coords.usrCoords[1], coords.usrCoords[2]], {name: '', size: 2, color: 'blue'});
+
+                    if (!pointsByR[radio]) pointsByR[radio] = [];
+                    pointsByR[radio].push(point);
+                };
+
+            board.on('down', handleDown);
+        });
+    </script>
+</head>
+<body>
+<div class="content">
+    <div class="coordinates_table">
+        <h:form>
+            <p>Выберите X:</p>
+            <h:selectOneRadio value="#{requestData.x}">
+                <f:selectItem itemValue="-4" itemLabel="-4"/>
+                <f:selectItem itemValue="-3" itemLabel="-3"/>
+                <f:selectItem itemValue="-2" itemLabel="-2"/>
+                <f:selectItem itemValue="-1" itemLabel="-1"/>
+                <f:selectItem itemValue="0" itemLabel="0"/>
+                <f:selectItem itemValue="1" itemLabel="1"/>
+                <f:selectItem itemValue="2" itemLabel="2"/>
+                <f:selectItem itemValue="3" itemLabel="3"/>
+                <f:selectItem itemValue="4" itemLabel="4"/>
+            </h:selectOneRadio>
+
+            <p>Введите Y:</p>
+            <h:inputText value="#{requestData.y}" placeholder="Введите Y"/>
+
+            <p>Выберите R:</p>
+            <h:selectOneMenu value="#{requestData.r}" onchange="redrawGraphWithNewR(this.value)">
+                <f:selectItem itemValue="1" itemLabel="1"/>
+                <f:selectItem itemValue="2" itemLabel="2"/>
+                <f:selectItem itemValue="3" itemLabel="3"/>
+                <f:selectItem itemValue="4" itemLabel="4"/>
+                <f:selectItem itemValue="5" itemLabel="5"/>
+            </h:selectOneMenu>
+
+            <h:commandButton value="Отправить" action="#{areaCheck.checkArea}"/>
+        </h:form>
+    </div>
+    <div class="graphic" id="jxgbox"></div>
+</div>
+</body>
 </html>

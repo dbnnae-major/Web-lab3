@@ -2882,7 +2882,7 @@ which must contain exactly one <code>&lt;flow-id&gt;</code> element.</p>
         class that is represented by the parent element, and must
         correspond to property names that will be recognized when
         performing introspection against that class via
-        java.beans.Introspector.</p>
+        java.services.Introspector.</p>
         
       ]]></xsd:documentation>
     </xsd:annotation>
