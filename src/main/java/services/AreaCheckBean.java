@@ -10,9 +10,7 @@ import javax.faces.context.FacesContext;
 @SessionScoped
 public class AreaCheckBean {
     private String result;
-
     public AreaCheckBean() {}
-
     public void checkArea() {
         RequestData requestData = (RequestData) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("requestData");
 
@@ -21,11 +19,9 @@ public class AreaCheckBean {
         double r = requestData.getR();
         boolean flag = areaConfirm(x, y, r);
 
-        if (flag) {
-            result = "POPAL";
-        } else {
-            result = "NE POPAL";
-        }
+
+        result = DataBaseManager.addRequestData(requestData);
+        DataBaseManager.shutdown();
         System.out.println(result);
     }
 
