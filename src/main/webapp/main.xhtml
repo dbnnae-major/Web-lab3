@@ -52,117 +52,13 @@
     </style>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsxgraph/1.4.1/jsxgraphcore.js"></script>
-    <script>
-        let radio = 1;
-        let board;
-        let graph1, graph2, graph3, i1, i2, i3;
-        let pointsByR = {};
-
-        function redrawGraphWithNewR(value){
-            radio = value;
-            redrawGraphs();
-        }
-
-        function redrawGraphs() {
-            if (!board) return;
-
-            if (graph1) board.removeObject(graph1);
-            if (graph2) board.removeObject(graph2);
-            if (graph3) board.removeObject(graph3);
-            if (i1) board.removeObject(i1);
-            if (i2) board.removeObject(i2);
-            if (i3) board.removeObject(i3);
-
-            graph1 = board.create('functiongraph', [function (x) {
-                return -x / 2 + (radio / 2);
-            }, 0, radio]);
-
-            i1 = board.create('integral', [[0, radio], graph1], {
-                label: { visible: false },
-                curveLeft: { visible: false },
-                curveRight: { visible: false },
-                baseRight: { visible: false },
-                baseLeft: { visible: false },
-                fillColor: 'white',
-            });
-
-            graph2 = board.create('functiongraph', [function (x) {
-                return radio / 2;
-            }, -radio, 0]);
-
-            i2 = board.create('integral', [[-radio, 0], graph2], {
-                label: { visible: false },
-                curveLeft: { visible: false },
-                curveRight: { visible: false },
-                baseRight: { visible: false },
-                baseLeft: { visible: false },
-                fillColor: 'white',
-            });
-
-            graph3 = board.create('functiongraph', [function (x) {
-                return -Math.sqrt(radio * radio / 4 - x * x);
-            }, -radio / 2, 0]);
-
-            i3 = board.create('integral', [[-radio / 2, 0], graph3], {
-                label: { visible: false },
-                curveLeft: { visible: false },
-                curveRight: { visible: false },
-                baseRight: { visible: false },
-                baseLeft: { visible: false },
-                fillColor: 'white',
-            });
-
-            for (let r in pointsByR) {
-                pointsByR[r].forEach(point => point.setAttribute({ visible: false }));
-            }
-
-            if (pointsByR[radio]) {
-                pointsByR[radio].forEach(point => point.setAttribute({ visible: true }));
-            }
-        }
-
-        $(document).ready(function () {
-            board = JXG.JSXGraph.initBoard("jxgbox", {
-                boundingbox: [-6, 6, 6, -6],
-                axis: true,
-                defaultAxes: {
-                    x: { ticks: { color: 'red', drawZero: true, label: { color: 'red' } } },
-                    y: { ticks: { color: 'red', label: { color: 'red' } } }
-                }
-            });
-
-            function addPoint(x, y, r, color) {
-                let point = board.create('point', [x, y], { name: '', size: 2, color: color });
-                if (!pointsByR[r]) pointsByR[r] = [];
-                pointsByR[r].push(point);
-            }
-
-            redrawGraphs();
-
-            var getMouseCoords = function (e, i) {
-                    var pos = board.getMousePosition(e, i);
-                    return new JXG.Coords(JXG.COORDS_BY_SCREEN, pos, board);
-                },
-
-                handleDown = function (e) {
-                    var coords = getMouseCoords(e, 0);
-
-                    let point = board.create('point', [coords.usrCoords[1], coords.usrCoords[2]], {name: '', size: 2, color: 'blue'});
-
-                    if (!pointsByR[radio]) pointsByR[radio] = [];
-                    pointsByR[radio].push(point);
-                };
-
-            board.on('down', handleDown);
-        });
-    </script>
 </head>
 <body>
 <div class="content">
     <div class="coordinates_table">
-        <h:form>
+        <h:form id="Form">
             <p>Выберите X:</p>
-            <h:selectOneRadio value="#{requestData.x}">
+            <h:selectOneRadio id = "x" value="#{requestData.x}">
                 <f:selectItem itemValue="-4" itemLabel="-4"/>
                 <f:selectItem itemValue="-3" itemLabel="-3"/>
                 <f:selectItem itemValue="-2" itemLabel="-2"/>
@@ -175,10 +71,10 @@
             </h:selectOneRadio>
 
             <p>Введите Y:</p>
-            <h:inputText value="#{requestData.y}" placeholder="Введите Y"/>
+            <h:inputText id = "y" value="#{requestData.y}" placeholder="Введите Y"/>
 
             <p>Выберите R:</p>
-            <h:selectOneMenu value="#{requestData.r}" onchange="redrawGraphWithNewR(this.value)">
+            <h:selectOneMenu id = "r" value="#{requestData.r}" onchange="redrawGraphWithNewR(this.value)">
                 <f:selectItem itemValue="1" itemLabel="1"/>
                 <f:selectItem itemValue="2" itemLabel="2"/>
                 <f:selectItem itemValue="3" itemLabel="3"/>
@@ -186,10 +82,182 @@
                 <f:selectItem itemValue="5" itemLabel="5"/>
             </h:selectOneMenu>
 
-            <h:commandButton value="Отправить" action="#{areaCheck.checkArea}"/>
+            <h:commandButton id="button" value="Отправить" action="#{requestHandler.handleRequest()}">
+                <f:param name="requestType" value="AREA_CHECK" />
+            </h:commandButton>
+
+            <h:outputText id="x_graph" value="#{requestData.x}" style="display:none;" />
+            <h:outputText id="y_graph" value="#{requestData.y}" style="display:none;" />
+            <h:outputText id="r_graph" value="#{requestData.r}" style="display:none;" />
+            <h:outputText id="flag" value="#{requestData.flag}" style="display:none;" />
         </h:form>
     </div>
     <div class="graphic" id="jxgbox"></div>
+    <h:form>
+        <h:commandButton value="Таблица" action="#{requestHandler.handleRequest}"
+                         styleClass="styled-button">
+            <f:param name="requestType" value="GET_ALL_REQUESTS" />
+        </h:commandButton>
+    </h:form>
 </div>
+
+<h:outputText id="requests" value="#{dataBase.requests}" escape="false" style="display:none;" />
+
+<script>
+    let radio = 1;
+    let board;
+    let graph1, graph2, graph3, i1, i2, i3;
+    let pointsByR = {};
+
+    function redrawGraphWithNewR(value){
+        radio = value;
+        redrawGraphs();
+    }
+
+    function redrawGraphs() {
+        if (!board) return;
+
+        if (graph1) board.removeObject(graph1);
+        if (graph2) board.removeObject(graph2);
+        if (graph3) board.removeObject(graph3);
+        if (i1) board.removeObject(i1);
+        if (i2) board.removeObject(i2);
+        if (i3) board.removeObject(i3);
+
+        graph1 = board.create('functiongraph', [function (x) {
+            return -x / 2 + (radio / 2);
+        }, 0, radio]);
+
+        i1 = board.create('integral', [[0, radio], graph1], {
+            label: { visible: false },
+            curveLeft: { visible: false },
+            curveRight: { visible: false },
+            baseRight: { visible: false },
+            baseLeft: { visible: false },
+            fillColor: 'white',
+        });
+
+        graph2 = board.create('functiongraph', [function (x) {
+            return radio / 2;
+        }, -radio, 0]);
+
+        i2 = board.create('integral', [[-radio, 0], graph2], {
+            label: { visible: false },
+            curveLeft: { visible: false },
+            curveRight: { visible: false },
+            baseRight: { visible: false },
+            baseLeft: { visible: false },
+            fillColor: 'white',
+        });
+
+        graph3 = board.create('functiongraph', [function (x) {
+            return -Math.sqrt(radio * radio / 4 - x * x);
+        }, -radio / 2, 0]);
+
+        i3 = board.create('integral', [[-radio / 2, 0], graph3], {
+            label: { visible: false },
+            curveLeft: { visible: false },
+            curveRight: { visible: false },
+            baseRight: { visible: false },
+            baseLeft: { visible: false },
+            fillColor: 'white',
+        });
+
+        for (let r in pointsByR) {
+            pointsByR[r].forEach(point => point.setAttribute({ visible: false }));
+        }
+
+        if (pointsByR[radio]) {
+            pointsByR[radio].forEach(point => point.setAttribute({ visible: true }));
+        }
+    }
+
+    $(document).ready(function () {
+        var requests = $('#requests').text();
+        console.log(requests);
+
+        requests = requests.replace(/RequestData\{(.*?)\}/g, function (match, p1) {
+            return '{' + p1.replace(/([a-zA-Z]+)=/g, '"$1":') + '}';
+        });
+
+        try {
+            requests = JSON.parse(requests);
+        } catch (e) {
+            console.error("Ошибка при разборе JSON:", e);
+            requests = [];
+        }
+
+        console.log(requests);
+
+
+        board = JXG.JSXGraph.initBoard("jxgbox", {
+            boundingbox: [-6, 6, 6, -6],
+            axis: true,
+            defaultAxes: {
+                x: { ticks: { color: 'red', drawZero: true, label: { color: 'red' } } },
+                y: { ticks: { color: 'red', label: { color: 'red' } } }
+            }
+        });
+
+        requests.forEach(function(request) {
+            let x = request.x;
+            let y = request.y;
+            let color = request.flag ? "green" : "red";
+            addPoint(x, y, radio, color);
+        });
+
+        function addPoint(x, y, r, color) {
+            let point = board.create('point', [x, y], { name: '', size: 2, color: color });
+            if (!pointsByR[r]) pointsByR[r] = [];
+            pointsByR[r].push(point);
+        }
+
+        redrawGraphs();
+
+        var getMouseCoords = function (e, i) {
+                var pos = board.getMousePosition(e, i);
+                return new JXG.Coords(JXG.COORDS_BY_SCREEN, pos, board);
+            },
+
+            handleDown = function (e) {
+                var canCreate = true,
+                    i, coords, el;
+
+                if (e[JXG.touchProperty]) {
+                    i = 0;
+                }
+                coords = getMouseCoords(e, i);
+
+                for (el in board.objects) {
+                    if (JXG.isPoint(board.objects[el]) &amp;&amp; board.objects[el].hasPoint(coords.scrCoords[1], coords.scrCoords[2])) {
+                        canCreate = false;
+                        break;
+                    }
+                }
+
+                if (canCreate) {
+                    var color;
+                    var xInput = document.getElementById("Form:x_graph");
+                    var yInput = document.getElementById("Form:y_graph");
+                    var rInput = document.getElementById("Form:r_graph");
+
+                    xInput.value = coords.usrCoords[1];
+                    yInput.value = coords.usrCoords[2];
+                    rInput.value = radio;
+
+                    document.getElementById('Form:button').click();
+
+                    if ($('#flag').text()) color = "green";
+                    else color = "red";
+                    let point = board.create('point', [coords.usrCoords[1], coords.usrCoords[2]], {name: '', size: 2, color: color});
+
+                    if (!pointsByR[radio]) pointsByR[radio] = [];
+                    pointsByR[radio].push(point);
+                }
+            };
+
+        board.on('down', handleDown);
+    });
+</script>
 </body>
 </html>

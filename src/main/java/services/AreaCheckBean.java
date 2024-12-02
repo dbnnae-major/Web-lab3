@@ -11,18 +11,18 @@ import javax.faces.context.FacesContext;
 public class AreaCheckBean {
     private String result;
     public AreaCheckBean() {}
-    public void checkArea() {
+    public RequestData checkArea() {
         RequestData requestData = (RequestData) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("requestData");
 
         double x = requestData.getX();
         double y = requestData.getY();
         double r = requestData.getR();
         boolean flag = areaConfirm(x, y, r);
+        requestData.setFlag(flag);
 
+        if (flag) {result = "POPAL";} else {result = "NE POPAL";}
 
-        result = DataBaseManager.addRequestData(requestData);
-        DataBaseManager.shutdown();
-        System.out.println(result);
+        return requestData;
     }
 
     public String getResult() {

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Лабораторная работа 3</title>
+    <link rel="icon" type="image/jpg" href="resources/icons/ИконкаСайта.jpg"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jsxgraph/1.4.1/jsxgraph.css"/>
+    <style>
+        body {
+            margin: 0;
+            font-family: monospace;
+            background-image: url('icons/back1_right.gif');
+            background-color: #000;
+            color: #ffffff;
+            font-size: 40px;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 100vh;
+        }
+
+        .content {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
+            margin: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="content">
+    <h:form>
+        <h:dataTable id="requestsTable" value="#{dataBase.requests}" var="requestData">
+            <h:column>
+                <f:facet name="header">X</f:facet>
+                #{requestData.x}
+            </h:column>
+            <h:column>
+                <f:facet name="header">Y</f:facet>
+                #{requestData.y}
+            </h:column>
+            <h:column>
+                <f:facet name="header">R</f:facet>
+                #{requestData.r}
+            </h:column>
+            <h:column>
+                <f:facet name="header">Flag</f:facet>
+                #{requestData.flag}
+            </h:column>
+        </h:dataTable>
+    </h:form>
+    <h:form>
+        <h:commandButton value="Удалить все записи" action="#{dataBase.clearAndReloadRequests}" update="requestsTable" styleClass="styled-button"/>
+    </h:form>
+    <h:form>
+        <h:commandButton value="Назад" action="goToMainPage" styleClass="styled-button" />
+    </h:form>
+</div>
+</body>
+</html>
