@@ -37,6 +37,21 @@
             color: #ffffff;
         }
 
+        .styled-button {
+            background-color: rgba(0, 0, 0, 0.6);
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: background-color 0.3s ease, opacity 0.3s ease;
+        }
+
         .coordinates_table {
             width: 20%;
             font-size: 30px;
@@ -68,7 +83,7 @@
             <h:inputText id="yHidden" value="#{requestData.y}" render="output_y" style="display:none;"/>
 
             <!-- Вывод текущего значения слайдера -->
-            <h:inputText id = "output_y" value="0"/>
+            <h:inputText id = "output_y" value="0" readonly="true"/>
 
             <p>Выберите R:</p>
             <h:selectOneMenu id = "r" value="#{requestData.r}" onchange="redrawGraphWithNewR(this.value)">
@@ -79,14 +94,17 @@
                 <f:selectItem itemValue="5" itemLabel="5"/>
             </h:selectOneMenu>
 
-            <h:commandButton id="button" value="Отправить" action="#{requestHandler.handleRequest()}">
+            <h:commandButton id="button" value="Отправить" action="#{requestHandler.handleRequest()}" onclick="return validateForm()" styleClass="styled-button">
                 <f:param name="requestType" value="AREA_CHECK" />
             </h:commandButton>
 
-            <h:outputText id="x_graph" value="#{requestData.x}" style="display:none;" />
-            <h:outputText id="y_graph" value="#{requestData.y}" style="display:none;" />
-            <h:outputText id="r_graph" value="#{requestData.r}" style="display:none;" />
+<!--            <h:outputText id="x_graph" value="#{requestData.x}" style="display:none;" />-->
+<!--            <h:outputText id="y_graph" value="#{requestData.y}" style="display:none;" />-->
+<!--            <h:outputText id="r_graph" value="#{requestData.r}" style="display:none;" />-->
             <h:outputText id="flag" value="#{requestData.flag}" style="display:none;" />
+            <div id="error-message" style="display:none; color: red; font-weight: bold;">
+                <!-- Сообщение об ошибке будет вставляться сюда с помощью JavaScript -->
+            </div>
         </h:form>
     </div>
     <div class="graphic" id="jxgbox"></div>
@@ -113,8 +131,31 @@
             console.error("Элементы не найдены");
         }
     }
+    function validateForm() {
+        var x = parseFloat(document.getElementById("Form:x").value);
+        var y = parseFloat(document.getElementById("Form:yHidden").value);
+        var errorMessage = document.getElementById("error-message");
 
-    let radio = 1;
+        // Проверка на NaN или выход за границы
+        if (isNaN(x) || isNaN(y) || x &lt; -5 || x > 5 || y &lt; -5 || y > 5) {
+            errorMessage.style.display = "block";
+
+            // Генерация текста ошибки в зависимости от того, какое значение вне допустимого диапазона
+            if (isNaN(x) || x &lt; -5 || x > 5) {
+                errorMessage.innerText = "X должно быть числом в диапазоне от -5 до 5.";
+            } else if (isNaN(y) || y &lt; -5 || y > 5) {
+                errorMessage.innerText = "Y должно быть числом в диапазоне от -5 до 5.";
+            }
+
+            return false;
+        }
+
+        errorMessage.style.display = "none";
+        return true;
+    }
+
+    var rInput = document.getElementById("Form:r");
+    let radio = rInput.value;
     let board;
     let graph1, graph2, graph3, i1, i2, i3;
     let pointsByR = {};
