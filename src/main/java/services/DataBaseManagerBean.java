@@ -28,7 +28,6 @@ public class DataBaseManagerBean {
             System.err.println("Инициализация SessionFactory завершилась неудачей: " + ex);
             throw new RuntimeException(ex);
         }
-        getAllRequests();
     }
 
     public void clearAndReloadRequests() {

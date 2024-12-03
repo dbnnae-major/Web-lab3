@@ -58,20 +58,17 @@
     <div class="coordinates_table">
         <h:form id="Form">
             <p>Выберите X:</p>
-            <h:selectOneRadio id = "x" value="#{requestData.x}">
-                <f:selectItem itemValue="-4" itemLabel="-4"/>
-                <f:selectItem itemValue="-3" itemLabel="-3"/>
-                <f:selectItem itemValue="-2" itemLabel="-2"/>
-                <f:selectItem itemValue="-1" itemLabel="-1"/>
-                <f:selectItem itemValue="0" itemLabel="0"/>
-                <f:selectItem itemValue="1" itemLabel="1"/>
-                <f:selectItem itemValue="2" itemLabel="2"/>
-                <f:selectItem itemValue="3" itemLabel="3"/>
-                <f:selectItem itemValue="4" itemLabel="4"/>
-            </h:selectOneRadio>
+            <h:inputText id = "x" value="#{requestData.x}" placeholder="Введите Y"/>
 
-            <p>Введите Y:</p>
-            <h:inputText id = "y" value="#{requestData.y}" placeholder="Введите Y"/>
+            <p>Выберите Y:</p>
+            <!-- Слайдер -->
+            <input type="range" id="y" min="-5" max="5" step="0.1" value="0" oninput="updateOutputY(this.value)" />
+
+            <!-- Скрытое поле JSF -->
+            <h:inputText id="yHidden" value="#{requestData.y}" render="output_y" style="display:none;"/>
+
+            <!-- Вывод текущего значения слайдера -->
+            <h:inputText id = "output_y" value="0"/>
 
             <p>Выберите R:</p>
             <h:selectOneMenu id = "r" value="#{requestData.r}" onchange="redrawGraphWithNewR(this.value)">
@@ -104,6 +101,19 @@
 <h:outputText id="requests" value="#{dataBase.requests}" escape="false" style="display:none;" />
 
 <script>
+    function updateOutputY(value) {
+        var form = document.getElementById("Form");
+        var outputElement = form.querySelector("#Form\\:output_y"); // Обратите внимание на двойное двоеточие
+        var inputElementHidden = form.querySelector("#Form\\:yHidden");
+
+        if (outputElement &amp;&amp; inputElementHidden) {
+            outputElement.value = value;
+            inputElementHidden.value = value;
+        } else {
+            console.error("Элементы не найдены");
+        }
+    }
+
     let radio = 1;
     let board;
     let graph1, graph2, graph3, i1, i2, i3;
@@ -202,8 +212,9 @@
         requests.forEach(function(request) {
             let x = request.x;
             let y = request.y;
+            let r = request.r;
             let color = request.flag ? "green" : "red";
-            addPoint(x, y, radio, color);
+            addPoint(x, y, r, color);
         });
 
         function addPoint(x, y, r, color) {
@@ -237,13 +248,11 @@
 
                 if (canCreate) {
                     var color;
-                    var xInput = document.getElementById("Form:x_graph");
-                    var yInput = document.getElementById("Form:y_graph");
-                    var rInput = document.getElementById("Form:r_graph");
+                    var xInput = document.getElementById("Form:x");
+                    var yInput = document.getElementById("Form:yHidden");
 
                     xInput.value = coords.usrCoords[1];
                     yInput.value = coords.usrCoords[2];
-                    rInput.value = radio;
 
                     document.getElementById('Form:button').click();
 
