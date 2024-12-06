@@ -18,4 +18,14 @@
         <servlet-name>FacesServlet</servlet-name>
         <url-pattern>*.xhtml</url-pattern>
     </servlet-mapping>
+
+    <context-param>
+        <param-name>primefaces.THEME</param-name>
+        <param-value>saga</param-value>
+    </context-param>
+
+    <context-param>
+        <param-name>primefaces.INCLUDE_RESOURCE</param-name>
+        <param-value>true</param-value>
+    </context-param>
 </web-app>

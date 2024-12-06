@@ -5,7 +5,6 @@
 <head>
     <meta charset="UTF-8"/>
     <title>Лабораторная работа 3</title>
-    <link rel="icon" type="image/jpg" href="resources/icons/ИконкаСайта.jpg"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jsxgraph/1.4.1/jsxgraph.css"/>
     <style>
         body {
@@ -35,6 +34,15 @@
             text-align: center;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             color: #ffffff;
+        }
+
+        .irs--modern .irs-bar {
+            background-color: #4caf50;
+        }
+
+        .irs--modern .irs-handle {
+            background-color: #000;
+            border: 2px solid #4caf50;
         }
 
         .styled-button {
@@ -67,6 +75,8 @@
     </style>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsxgraph/1.4.1/jsxgraphcore.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/css/ion.rangeSlider.min.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/js/ion.rangeSlider.min.js"></script>
 </head>
 <body>
 <div class="content">
@@ -76,34 +86,23 @@
             <h:inputText id = "x" value="#{requestData.x}" placeholder="Введите Y"/>
 
             <p>Выберите Y:</p>
-            <!-- Слайдер -->
             <input type="range" id="y" min="-5" max="5" step="0.1" value="0" oninput="updateOutputY(this.value)" />
 
-            <!-- Скрытое поле JSF -->
             <h:inputText id="yHidden" value="#{requestData.y}" render="output_y" style="display:none;"/>
 
-            <!-- Вывод текущего значения слайдера -->
             <h:inputText id = "output_y" value="0" readonly="true"/>
 
             <p>Выберите R:</p>
-            <h:selectOneMenu id = "r" value="#{requestData.r}" onchange="redrawGraphWithNewR(this.value)">
-                <f:selectItem itemValue="1" itemLabel="1"/>
-                <f:selectItem itemValue="2" itemLabel="2"/>
-                <f:selectItem itemValue="3" itemLabel="3"/>
-                <f:selectItem itemValue="4" itemLabel="4"/>
-                <f:selectItem itemValue="5" itemLabel="5"/>
-            </h:selectOneMenu>
+            <input id="r-slider" type="text" value="1" />
+            <h:inputText id="r" value="#{requestData.r}" style="display:none;" />
 
             <h:commandButton id="button" value="Отправить" action="#{requestHandler.handleRequest()}" onclick="return validateForm()" styleClass="styled-button">
                 <f:param name="requestType" value="AREA_CHECK" />
             </h:commandButton>
 
-<!--            <h:outputText id="x_graph" value="#{requestData.x}" style="display:none;" />-->
-<!--            <h:outputText id="y_graph" value="#{requestData.y}" style="display:none;" />-->
-<!--            <h:outputText id="r_graph" value="#{requestData.r}" style="display:none;" />-->
+
             <h:outputText id="flag" value="#{requestData.flag}" style="display:none;" />
             <div id="error-message" style="display:none; color: red; font-weight: bold;">
-                <!-- Сообщение об ошибке будет вставляться сюда с помощью JavaScript -->
             </div>
         </h:form>
     </div>
@@ -121,7 +120,7 @@
 <script>
     function updateOutputY(value) {
         var form = document.getElementById("Form");
-        var outputElement = form.querySelector("#Form\\:output_y"); // Обратите внимание на двойное двоеточие
+        var outputElement = form.querySelector("#Form\\:output_y");
         var inputElementHidden = form.querySelector("#Form\\:yHidden");
 
         if (outputElement &amp;&amp; inputElementHidden) {
@@ -136,11 +135,9 @@
         var y = parseFloat(document.getElementById("Form:yHidden").value);
         var errorMessage = document.getElementById("error-message");
 
-        // Проверка на NaN или выход за границы
         if (isNaN(x) || isNaN(y) || x &lt; -5 || x > 5 || y &lt; -5 || y > 5) {
             errorMessage.style.display = "block";
 
-            // Генерация текста ошибки в зависимости от того, какое значение вне допустимого диапазона
             if (isNaN(x) || x &lt; -5 || x > 5) {
                 errorMessage.innerText = "X должно быть числом в диапазоне от -5 до 5.";
             } else if (isNaN(y) || y &lt; -5 || y > 5) {
@@ -156,6 +153,7 @@
 
     var rInput = document.getElementById("Form:r");
     let radio = rInput.value;
+    // let radio = 1;
     let board;
     let graph1, graph2, graph3, i1, i2, i3;
     let pointsByR = {};
@@ -218,14 +216,15 @@
             pointsByR[r].forEach(point => point.setAttribute({ visible: false }));
         }
 
+        radio = parseInt(radio);
+        console.log(pointsByR);
         if (pointsByR[radio]) {
             pointsByR[radio].forEach(point => point.setAttribute({ visible: true }));
         }
     }
 
-    $(document).ready(function () {
+    function redrawPoints() {
         var requests = $('#requests').text();
-        console.log(requests);
 
         requests = requests.replace(/RequestData\{(.*?)\}/g, function (match, p1) {
             return '{' + p1.replace(/([a-zA-Z]+)=/g, '"$1":') + '}';
@@ -245,12 +244,12 @@
             boundingbox: [-6, 6, 6, -6],
             axis: true,
             defaultAxes: {
-                x: { ticks: { color: 'red', drawZero: true, label: { color: 'red' } } },
-                y: { ticks: { color: 'red', label: { color: 'red' } } }
+                x: {ticks: {color: 'red', drawZero: true, label: {color: 'red'}}},
+                y: {ticks: {color: 'red', label: {color: 'red'}}}
             }
         });
 
-        requests.forEach(function(request) {
+        requests.forEach(function (request) {
             let x = request.x;
             let y = request.y;
             let r = request.r;
@@ -259,11 +258,30 @@
         });
 
         function addPoint(x, y, r, color) {
-            let point = board.create('point', [x, y], { name: '', size: 2, color: color });
+            let point = board.create('point', [x, y], {name: '', size: 2, color: color});
             if (!pointsByR[r]) pointsByR[r] = [];
             pointsByR[r].push(point);
         }
+    }
 
+    $(document).ready(function () {
+        $("#r-slider").ionRangeSlider({
+            type: "single",
+            min: 1,
+            max: 5,
+            from: radio,
+            step: 1,
+            grid: true,
+            onChange: function (data) {
+                var rInput = document.getElementById("Form:r");
+                rInput.value = data.from;
+
+                redrawGraphWithNewR(data.from);
+            }
+        });
+
+
+        redrawPoints();
         redrawGraphs();
 
         var getMouseCoords = function (e, i) {
