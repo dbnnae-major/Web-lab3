@@ -1,5 +1,6 @@
 package data;
 
+import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.persistence.*;
@@ -23,6 +24,13 @@ public class RequestData {
     private boolean flag;
 
     public RequestData() {
+    }
+
+    @PostConstruct
+    public void init() {
+        if (r == 0) {
+            r = 1;
+        }
     }
 
     public Long getId() {

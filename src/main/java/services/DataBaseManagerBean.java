@@ -5,11 +5,9 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
-import org.json.JSONObject;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
-import javax.faces.bean.SessionScoped;
 import java.util.List;
 
 @ManagedBean(name = "dataBase", eager = true)
@@ -58,14 +56,6 @@ public class DataBaseManagerBean {
             return result;
         }
     }
-
-//    public String getRequests() {
-//        JSONObject jsonObject = new JSONObject();
-//
-//        jsonObject.put("requests", requests);
-//
-//        return jsonObject.toString();
-//    }
 
     public void clearAllRequests() {
         try (Session session = sessionFactory.openSession()) {
