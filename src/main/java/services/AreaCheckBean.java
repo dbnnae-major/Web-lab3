@@ -36,7 +36,7 @@ public class AreaCheckBean {
         if ((x >= 0 && x <= r) && (y <= ((double) -x / 2 + (double) r / 2) && y >= 0)) {
             return true;
         }
-        if ((x * x + y * y) <= (double) (r * r) / 2 && y <= 0 && x <= 0) {
+        if ((x * x + y * y) <= (double) (r * r) / 4 && y <= 0 && x <= 0) {
             return true;
         }
         return false;
